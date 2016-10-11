@@ -5,15 +5,15 @@ public class MosesSaysAscii {
 
 		int options = 4; // TODO get from args.
 
-		MosesSaysEngine game = new MosesSaysEngine(options);
+		MosesSaysEngine engine = new MosesSaysEngine(options);
 		Scanner input = new Scanner(System.in);
 		String in;
 
-		while (!game.isGameOver()) {
-			game.rollNext();
-			System.out.println("enter the following: " + game.getSequence());
+		while (!engine.isGameOver()) {
+			engine.rollNext();
+			System.out.println("enter the following: " + engine.getSequence());
 			in = input.nextLine().trim();
-			game.checkSequence(in);
+			// engine.checkSequenceSoFar(in);
 		}
 		input.close();
 		System.out.println("Game Over !");

@@ -3,14 +3,15 @@ import java.util.Random;
 public class MosesSaysEngine {
 
 	// Game variables.
-	private StringBuilder history;
+	private StringBuilder Sequence;
 	private int numberOfOptions;
 	private Random rnd;
 	private boolean isGameOver;
 	private boolean hasGuessedLast;
 
 	public MosesSaysEngine(int numberOfOptions) {
-		history = new StringBuilder();
+		this.numberOfOptions = numberOfOptions;
+		Sequence = new StringBuilder();
 		rnd = new Random();
 		hasGuessedLast = true;
 		isGameOver = false;
@@ -19,31 +20,27 @@ public class MosesSaysEngine {
 
 	public void rollNext() {
 		if (hasGuessedLast) {
-			history.append(rnd.nextInt(numberOfOptions));
+			Sequence.append(rnd.nextInt(numberOfOptions) + 1);
 			hasGuessedLast = false;
 		}
 	}
 
 	public String getSequence() {
-		return history.toString();
+		return Sequence.toString();
 	}
 
-	private boolean checkValue(int index, char value) {
-		try {
-			return (history.charAt(index) == value) ? true : false;
-		} catch (Exception e) {
+	public boolean checkSequenceSoFar(StringBuilder progress) {
+		if (isGameOver) {
 			return false;
 		}
-	}
 
-	public boolean checkSequence(String str) {
-		if (str.length() != history.length()) {
+		if (progress.length() > Sequence.length()) {
 			isGameOver = true;
 			return false;
 		}
 
-		for (int i = 0; i < history.length(); i++) {
-			if (!checkValue(i, str.charAt(i))) {
+		for (int i = 0; i < progress.length(); i++) {
+			if (Sequence.charAt(i) != progress.charAt(i)) {
 				isGameOver = true;
 				return false;
 			}
@@ -54,5 +51,16 @@ public class MosesSaysEngine {
 
 	public boolean isGameOver() {
 		return isGameOver;
+	}
+
+	public int getSizeOfSequence() {
+		return Sequence.length();
+	}
+
+	public void resetGame() {
+		Sequence.setLength(0);
+		hasGuessedLast = true;
+		isGameOver = false;
+		rollNext();
 	}
 }
