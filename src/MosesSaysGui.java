@@ -40,11 +40,31 @@ public class MosesSaysGui extends JFrame {
 		engine.rollNext();
 
 		// Setup the panels.
-		setupGamePanel(rows, columns);
 		setupResetPanel();
+		setupGamePanel(rows, columns);
 
 		// adding the game panel to the frame.
 		this.add(gamePanel);
+	}
+
+	private void setupResetPanel() {
+		// Setting the grid layout;
+		resetPanel = new JPanel();
+		resetPanel.setLayout(new GridLayout(1, 1));
+
+		// Adding the reset button.
+		resetButton = new myJButton(0, Utils.getRandomColor(), resetButtonFont);
+		resetButton.setText("<html><center><h1>game over !</h1><h3>click to RESET</h3><center></html>");
+		resetButton.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e) {
+				switchPanels(resetPanel, gamePanel);
+				validate();
+				repaint();
+				startGame();
+			}
+		});
+		resetPanel.add(resetButton);
 	}
 
 	private void setupGamePanel(int rows, int columns) {
@@ -66,7 +86,6 @@ public class MosesSaysGui extends JFrame {
 						// Check if game over.
 						if (engine.isGameOver()) {
 							switchPanels(gamePanel, resetPanel);
-							startGame();
 							engine.resetGame();
 							input.setLength(0);
 
@@ -90,47 +109,26 @@ public class MosesSaysGui extends JFrame {
 
 	public void activateButton(myJButton b) {
 		b.setBrighter();
-		b.getParent().validate();
-		b.getParent().repaint();
+		validate();
+		repaint();
 
-		// Thread t = new Thread(new Runnable()
-		// {
-		// public void run() {
-		Utils.tone(100 * (1 + Integer.parseInt(b.getText())), SOUND_TIME, SOUND_VOLUME);
-//		Utils.pauseTime(SOUND_TIME);
-		b.getParent().validate();
-		b.getParent().repaint();
-		// }
-		// });
-		// t.start();
-		b.setRegular();
-		b.getParent().validate();
-		b.getParent().repaint();
-
-	}
-
-	private void setupResetPanel() {
-		// Setting the grid layout;
-		resetPanel = new JPanel();
-		resetPanel.setLayout(new GridLayout(1, 1));
-
-		// Adding the reset button.
-		resetButton = new myJButton(0, Utils.getRandomColor(), resetButtonFont);
-		resetButton.setText("<html><center><h1>game over !</h1><h3>click to RESET</h3><center></html>");
-		resetButton.addActionListener(new ActionListener()
+		Thread t = new Thread(new Runnable()
 		{
-			public void actionPerformed(ActionEvent e) {
-				switchPanels(resetPanel, gamePanel);
+			public void run() {
+				Utils.tone(100 * (1 + Integer.parseInt(b.getText())), SOUND_TIME, SOUND_VOLUME);
 			}
 		});
-		resetPanel.add(resetButton);
+		t.start();
+		b.setRegular();
+		validate();
+		repaint();
 	}
 
 	private void switchPanels(JPanel oldPanel, JPanel newPanel) {
 		remove(oldPanel);
 		add(newPanel);
-		repaintMyFrame();
-
+		validate();
+		repaint();
 	}
 
 	private void doNextRound() {
@@ -144,18 +142,19 @@ public class MosesSaysGui extends JFrame {
 		}
 	}
 
-	private void repaintMyFrame() {
-		validate();
-		repaint();
-	}
-
 	public void centerWindow() {
 		setLocation((Utils.getScreenWidth() - getWidth()) / 2, (Utils.getsScreenHeight() - getHeight()) / 2);
 	}
 
 	public void startGame() {
-		Utils.pauseTime(WAIT_TIME_BEFORE_NEW_GAME);
-		doNextRound();
+		Thread t = new Thread(new Runnable()
+		{
+			public void run() {
+				Utils.pauseTime(WAIT_TIME_BEFORE_NEW_GAME);
+				doNextRound();
+			}
+		});
+		t.start();
 	}
 
 	class myJButton extends JButton {
@@ -178,11 +177,11 @@ public class MosesSaysGui extends JFrame {
 			setBackground(color);
 		}
 
-		public void setBrighter() {
+		public synchronized void setBrighter() {
 			setBackground(brighter);
 		}
 
-		public void setRegular() {
+		public synchronized void setRegular() {
 			setBackground(original);
 		}
 	}
