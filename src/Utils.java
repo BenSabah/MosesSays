@@ -49,7 +49,7 @@ class Utils {
 		return GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().height;
 	}
 
-	static void tone(int hz, int msecs, double vol) {
+	static void soundTone(int hz, int msecs, double vol) {
 		try {
 			byte[] buf = new byte[1];
 			AudioFormat af = new AudioFormat(7000f, 8, 1, true, false);
@@ -130,22 +130,56 @@ class Utils {
 		return str.replaceAll("\\<.*?>", "");
 	}
 
-	static Dimension getBestButtonsArrangments(Dimension dim, int howManyButtons) {
-		return null;
-	}
-
-	public static void pauseTime(long miliSeconds) {
+	static void pauseTime(long miliSeconds) {
 		try {
 			Thread.sleep(miliSeconds);
 		} catch (InterruptedException e1) {
 		}
 	}
 
-	public static Color getOppositeColor(Color color) {
+	static Color getOppositeColor(Color color) {
 		int r = color.getRed();
 		int g = color.getGreen();
 		int b = color.getBlue();
 
 		return new Color(255 - r, 255 - g, 255 - b);
+	}
+
+	static Dimension getBestButtonsArrangments(Dimension dim, int howManyButtons) {
+		int x = dim.width;
+		int y = dim.height;
+		// int gcd = gcd(x, y);
+		// x /= gcd;
+		// y /= gcd;
+
+		double bestRatioSoFar = 0.0;
+		int bestHorSoFar = 0;
+		int bestVerSoFar = 0;
+
+		for (int i = 1; i <= howManyButtons; i++) {
+			int numHor = i;
+			int numVer = (int) Math.ceil((double) howManyButtons / i);
+
+			double width = (double) x / numHor;
+			double height = (double) y / numVer;
+			double ratio = Math.min(width, height) / Math.max(width, height);
+
+			// System.out.println(String.format("%sx%s > w-%.3f h-%.3f r-%.3f", numHor, numVer, width, height, ratio));
+			if (ratio >= bestRatioSoFar) {
+				bestRatioSoFar = ratio;
+				bestHorSoFar = numHor;
+				bestVerSoFar = numVer;
+			}
+		}
+		return new Dimension(bestHorSoFar, bestVerSoFar);
+	}
+
+	static int gcd(int a, int b) {
+		while (b > 0) {
+			int temp = b;
+			b = a % b; // % is remainder
+			a = temp;
+		}
+		return a;
 	}
 }

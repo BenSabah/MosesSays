@@ -7,6 +7,7 @@ import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -34,14 +35,24 @@ public class MosesSaysGui extends JFrame {
 	Font resetButtonFont = new Font("Tahoma", Font.BOLD, 85);
 	myJButton resetButton;
 
-	public MosesSaysGui(int rows, int columns) {
+	int howManyButtons;
+	int numButtonsHor, numButtonsVer;
+
+	public MosesSaysGui(int howManyButtons, Dimension dim) {
+		// Calculate the grid layout.
+		this.setSize(dim);
+		this.howManyButtons = howManyButtons;
+		Dimension t = Utils.getBestButtonsArrangments(dim, howManyButtons);
+		numButtonsHor = t.width;
+		numButtonsVer = t.height;
+
 		// Starting a new game.
-		engine = new MosesSaysEngine(rows * columns);
+		engine = new MosesSaysEngine(howManyButtons);
 		engine.rollNext();
 
 		// Setup the panels.
 		setupResetPanel();
-		setupGamePanel(rows, columns);
+		setupGamePanel();
 
 		// adding the game panel to the frame.
 		this.add(gamePanel);
@@ -67,43 +78,41 @@ public class MosesSaysGui extends JFrame {
 		resetPanel.add(resetButton);
 	}
 
-	private void setupGamePanel(int rows, int columns) {
+	private void setupGamePanel() {
 		gamePanel = new JPanel();
-		gamePanel.setLayout(new GridLayout(rows, columns));
+		gamePanel.setLayout(new GridLayout(numButtonsVer, numButtonsHor));
 
-		for (int y = 0; y < rows; y++) {
-			for (int x = 0; x < columns; x++) {
-				myJButton b = new myJButton(y * columns + x + 1, Utils.getRandomColor(), gameButtonFont);
-				b.addActionListener(new ActionListener()
-				{
-					public void actionPerformed(ActionEvent e) {
-						// first activate the button and get its value.
-						activateButton(b);
+		for (int i = 0; i < howManyButtons; i++) {
+			myJButton b = new myJButton(i + 1, Utils.getRandomColor(), gameButtonFont);
+			b.addActionListener(new ActionListener()
+			{
+				public void actionPerformed(ActionEvent e) {
+					// first activate the button and get its value.
+					activateButton(b);
 
-						input.append(b.getText());
-						engine.checkSequenceSoFar(input);
+					input.append(b.getText());
+					engine.checkSequenceSoFar(input);
 
-						// Check if game over.
-						if (engine.isGameOver()) {
-							switchPanels(gamePanel, resetPanel);
-							engine.resetGame();
-							input.setLength(0);
+					// Check if game over.
+					if (engine.isGameOver()) {
+						switchPanels(gamePanel, resetPanel);
+						engine.resetGame();
+						input.setLength(0);
 
-							// If got the same number of characters
-						} else if (input.length() == engine.getSizeOfSequence()) {
-							Utils.pauseTime(WAIT_TIME_AFTER_GOOD_GUESS);
-							input.setLength(0);
-							engine.rollNext();
-							doNextRound();
-						} else {
-							// do nothing, input not yet complete.
-						}
+						// If got the same number of characters
+					} else if (input.length() == engine.getSizeOfSequence()) {
+						Utils.pauseTime(WAIT_TIME_AFTER_GOOD_GUESS);
+						input.setLength(0);
+						engine.rollNext();
+						doNextRound();
+					} else {
+						// do nothing, input not yet complete.
 					}
-				});
+				}
+			});
 
-				buttons.addElement(b);
-				gamePanel.add(b);
-			}
+			buttons.addElement(b);
+			gamePanel.add(b);
 		}
 	}
 
@@ -115,7 +124,7 @@ public class MosesSaysGui extends JFrame {
 		Thread t = new Thread(new Runnable()
 		{
 			public void run() {
-				Utils.tone(100 * (1 + Integer.parseInt(b.getText())), SOUND_TIME, SOUND_VOLUME);
+				Utils.soundTone(100 * (1 + b.id), SOUND_TIME, SOUND_VOLUME);
 			}
 		});
 		t.start();
@@ -164,7 +173,7 @@ public class MosesSaysGui extends JFrame {
 
 		public myJButton(int id, Color color, Font font) {
 			this.id = id;
-			original = color;
+			original = color.brighter();
 			brighter = original.brighter();
 
 			setForeground(Utils.getOppositeColor(original));
@@ -174,7 +183,7 @@ public class MosesSaysGui extends JFrame {
 			setFont(font);
 			setText(id + "");
 			setCursor(new Cursor(Cursor.HAND_CURSOR));
-			setBackground(color);
+			setBackground(original);
 		}
 
 		public synchronized void setBrighter() {
