@@ -137,15 +137,12 @@ class Utils {
 		}
 	}
 
-	static Color getOppositeColor(Color color) {
-		int r = color.getRed();
-		int g = color.getGreen();
-		int b = color.getBlue();
-
-		return new Color(255 - r, 255 - g, 255 - b);
+	static Color getContrastColor(Color c) {
+		int y = 299 * c.getRed() + 587 * c.getGreen() + 114 * c.getBlue();
+		return y >= 128000 ? Color.black : Color.white;
 	}
 
-	static Dimension getBestButtonsArrangments(Dimension dim, int howManyButtons) {
+	static Dimension getBestButtonsArrangment(Dimension dim, int howManyButtons) {
 		int x = dim.width;
 		int y = dim.height;
 		// int gcd = gcd(x, y);
@@ -174,10 +171,26 @@ class Utils {
 		return new Dimension(bestHorSoFar, bestVerSoFar);
 	}
 
+	static int min(int... numbers) {
+		int min = Integer.MAX_VALUE;
+		for (int n : numbers) {
+			min = Math.min(min, n);
+		}
+		return min;
+	}
+
+	static int max(int... numbers) {
+		int max = Integer.MIN_VALUE;
+		for (int n : numbers) {
+			max = Math.max(max, n);
+		}
+		return max;
+	}
+
 	static int gcd(int a, int b) {
 		while (b > 0) {
 			int temp = b;
-			b = a % b; // % is remainder
+			b = a % b;
 			a = temp;
 		}
 		return a;

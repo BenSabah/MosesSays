@@ -2,6 +2,7 @@ import java.util.Vector;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.border.LineBorder;
 import javax.swing.JButton;
 
 import java.awt.Font;
@@ -42,13 +43,12 @@ public class MosesSaysGui extends JFrame {
 		// Calculate the grid layout.
 		this.setSize(dim);
 		this.howManyButtons = howManyButtons;
-		Dimension t = Utils.getBestButtonsArrangments(dim, howManyButtons);
+		Dimension t = Utils.getBestButtonsArrangment(dim, howManyButtons);
 		numButtonsHor = t.width;
 		numButtonsVer = t.height;
 
 		// Starting a new game.
 		engine = new MosesSaysEngine(howManyButtons);
-		engine.rollNext();
 
 		// Setup the panels.
 		setupResetPanel();
@@ -90,6 +90,7 @@ public class MosesSaysGui extends JFrame {
 					// first activate the button and get its value.
 					activateButton(b);
 
+					// Get & check the latest input.
 					input.append(b.getText());
 					engine.checkSequenceSoFar(input);
 
@@ -116,21 +117,24 @@ public class MosesSaysGui extends JFrame {
 		}
 	}
 
-	public void activateButton(myJButton b) {
-		b.setBrighter();
-		validate();
-		repaint();
-
-		Thread t = new Thread(new Runnable()
+	public synchronized void activateButton(myJButton b) {
+		Thread t1 = new Thread(new Runnable()
 		{
 			public void run() {
+				b.setBrighter();
+				b.validate();
+				b.repaint();
+				validate();
+				repaint();
 				Utils.soundTone(100 * (1 + b.id), SOUND_TIME, SOUND_VOLUME);
+				b.setRegular();
+				b.validate();
+				b.repaint();
+				validate();
+				repaint();
 			}
 		});
-		t.start();
-		b.setRegular();
-		validate();
-		repaint();
+		t1.start();
 	}
 
 	private void switchPanels(JPanel oldPanel, JPanel newPanel) {
@@ -176,10 +180,10 @@ public class MosesSaysGui extends JFrame {
 			original = color.brighter();
 			brighter = original.brighter();
 
-			setForeground(Utils.getOppositeColor(original));
+			setBorder(new LineBorder(Color.BLACK, 3, true));
+			setForeground(Utils.getContrastColor(original));
 			setContentAreaFilled(false);
 			setOpaque(true);
-			setBorderPainted(false);
 			setFont(font);
 			setText(id + "");
 			setCursor(new Cursor(Cursor.HAND_CURSOR));

@@ -11,11 +11,9 @@ public class MosesSaysEngine {
 
 	public MosesSaysEngine(int numberOfOptions) {
 		this.numberOfOptions = numberOfOptions;
-		Sequence = new StringBuilder();
 		rnd = new Random();
-		hasGuessedLast = true;
-		isGameOver = false;
-		rollNext();
+		Sequence = new StringBuilder();
+		resetGame();
 	}
 
 	public void rollNext() {
@@ -30,6 +28,14 @@ public class MosesSaysEngine {
 	}
 
 	public boolean checkSequenceSoFar(StringBuilder progress) {
+		return checkSequence(progress, progress.length());
+	}
+
+	public boolean checkSequenceFull(StringBuilder progress) {
+		return checkSequence(progress, Sequence.length());
+	}
+
+	private boolean checkSequence(StringBuilder progress, int untilIndex) {
 		if (isGameOver) {
 			return false;
 		}
@@ -39,7 +45,12 @@ public class MosesSaysEngine {
 			return false;
 		}
 
-		for (int i = 0; i < progress.length(); i++) {
+		if (progress.length() < untilIndex) {
+			isGameOver = true;
+			return false;
+		}
+
+		for (int i = 0; i < untilIndex; i++) {
 			if (Sequence.charAt(i) != progress.charAt(i)) {
 				isGameOver = true;
 				return false;

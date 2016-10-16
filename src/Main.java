@@ -8,7 +8,7 @@ public class Main {
 		Utils.setSystemStyle();
 
 		// Starting and setting the game.
-		MosesSaysGui game = new MosesSaysGui(7, new Dimension(500, 500));
+		MosesSaysGui game = new MosesSaysGui(6, new Dimension(600, 400));
 		game.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		game.setTitle("Moses Says");
 		game.centerWindow();
