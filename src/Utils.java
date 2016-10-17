@@ -45,7 +45,7 @@ class Utils {
 	 * 
 	 * @return The height of the working screen.
 	 */
-	static int getsScreenHeight() {
+	static int getScreenHeight() {
 		return GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds().height;
 	}
 
@@ -169,6 +169,13 @@ class Utils {
 			}
 		}
 		return new Dimension(bestHorSoFar, bestVerSoFar);
+	}
+
+	static int calcBorderSize(Dimension dim, int btnsHor, int btnsVer) {
+		int hor = (int) (dim.getSize().width / btnsHor * 0.1);
+		int ver = (int) (dim.getSize().height / btnsVer * 0.1);
+		// System.out.println(String.format("borderSize: x=%s y=%s", hor, ver));
+		return hor < ver ? hor : ver;
 	}
 
 	static int min(int... numbers) {

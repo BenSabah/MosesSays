@@ -64,7 +64,8 @@ public class MosesSaysGui extends JFrame {
 		resetPanel.setLayout(new GridLayout(1, 1));
 
 		// Adding the reset button.
-		resetButton = new myJButton(0, Utils.getRandomColor(), resetButtonFont);
+		int borderSize = Utils.calcBorderSize(getSize(), 1, 1);
+		resetButton = new myJButton(0, null, resetButtonFont, borderSize);
 		resetButton.setText("<html><center><h1>game over !</h1><h3>click to RESET</h3><center></html>");
 		resetButton.addActionListener(new ActionListener()
 		{
@@ -81,9 +82,10 @@ public class MosesSaysGui extends JFrame {
 	private void setupGamePanel() {
 		gamePanel = new JPanel();
 		gamePanel.setLayout(new GridLayout(numButtonsVer, numButtonsHor));
+		int borderSize = Utils.calcBorderSize(getSize(), numButtonsHor, numButtonsVer);
 
-		for (int i = 0; i < howManyButtons; i++) {
-			myJButton b = new myJButton(i + 1, Utils.getRandomColor(), gameButtonFont);
+		for (int i = 1; i <= howManyButtons; i++) {
+			myJButton b = new myJButton(i, null, gameButtonFont, borderSize);
 			b.addActionListener(new ActionListener()
 			{
 				public void actionPerformed(ActionEvent e) {
@@ -156,7 +158,7 @@ public class MosesSaysGui extends JFrame {
 	}
 
 	public void centerWindow() {
-		setLocation((Utils.getScreenWidth() - getWidth()) / 2, (Utils.getsScreenHeight() - getHeight()) / 2);
+		setLocation((Utils.getScreenWidth() - getWidth()) / 2, (Utils.getScreenHeight() - getHeight()) / 2);
 	}
 
 	public void startGame() {
@@ -172,15 +174,17 @@ public class MosesSaysGui extends JFrame {
 
 	class myJButton extends JButton {
 		private static final long serialVersionUID = 3016883932249096163L;
-		Color original, brighter;
+		Color original, brighter, darker;
 		int id;
 
-		public myJButton(int id, Color color, Font font) {
+		public myJButton(int id, Color color, Font font, int borderSize) {
 			this.id = id;
-			original = color.brighter();
+			if (color == null) {
+				original = Utils.getRandomColor().brighter();
+			}
 			brighter = original.brighter();
-
-			setBorder(new LineBorder(Color.BLACK, 3, true));
+			darker = original.darker();
+			setBorder(new LineBorder(darker, borderSize, true));
 			setForeground(Utils.getContrastColor(original));
 			setContentAreaFilled(false);
 			setOpaque(true);
